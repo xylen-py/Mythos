@@ -1,0 +1,267 @@
+defaultPluginSnapshotRepository: https://maven.lavalink.dev/snapshots
+lavalink:
+    plugins:
+        - dependency: com.dunctebot:skybot-lavalink-plugin:1.7.0
+          snapshot: false
+        - dependency: com.github.topi314.lavasearch:lavasearch-plugin:1.0.0
+          snapshot: false
+        - dependency: dev.lavalink.youtube:youtube-plugin:f45bbb7aebfcbc1c553769e04af6cd43afa8b7c3
+          snapshot: true
+        - dependency: com.github.xylen-py.SlugYZeon:slugyzeon-plugin:4.6.2
+          repository: https://jitpack.io
+          snapshot: false
+        - dependency: com.github.topi314.lavasrc:lavasrc-plugin:4.8.3
+          repository: https://maven.lavalink.dev/releases
+          snapshot: false
+        - dependency: com.github.topi314.sponsorblock:sponsorblock-plugin:3.0.1
+          repository: https://maven.lavalink.dev/releases
+          snapshot: false
+        - dependency: com.github.topi314.lavalyrics:lavalyrics-plugin:1.1.0
+          repository: https://maven.lavalink.dev/releases
+          snapshot: false
+        - dependency: me.duncte123:java-lyrics-plugin:1.6.6
+          repository: https://maven.lavalink.dev/releases
+          snapshot: false
+    pluginsDir: ./plugins
+    server:
+        bufferDurationMs: 400
+        filters:
+            channelMix: true
+            distortion: true
+            echo: true
+            equalizer: true
+            karaoke: true
+            lowPass: true
+            rotation: true
+            timescale: true
+            tremolo: true
+            vibrato: true
+            volume: true
+        frameBufferDurationMs: 1000
+        gc-warnings: true
+        nonAllocatingFrameBuffer: true
+        opusEncodingQuality: 10
+        password: youshallnotpass
+        playerUpdateInterval: 2
+        ratelimit:
+            excludedIps: []
+            ipBlocks: []
+            retryLimit: -1
+            searchTriggersFail: true
+            strategy: RotateOnBan
+        resamplingQuality: HIGH
+        soundcloudFilterOutPreviewTracks: true
+        soundcloudSearchEnabled: true
+        sources:
+            bandcamp: true
+            http: true
+            local: true
+            soundcloud: true
+            twitch: true
+            vimeo: true
+            youtube: false
+        timeouts:
+            connectTimeoutMs: 30000
+            connectionRequestTimeoutMs: 30000
+            socketTimeoutMs: 30000
+        trackStuckThresholdMs: 15000
+        useSeekGhosting: true
+        youtubePlaylistLoadLimit: 6
+        youtubeSearchEnabled: true
+logging:
+    file:
+        path: ./logs/
+    level:
+        lavalink: INFO
+        root: INFO
+    logback:
+        rollingpolicy:
+            max-file-size: 1GB
+            max-history: 30
+    request:
+        enabled: true
+        includeClientInfo: true
+        includeHeaders: false
+        includePayload: false
+        includeQueryString: true
+        maxPayloadLength: 10000
+metrics:
+    prometheus:
+        enabled: true
+        endpoint: /metrics
+plugins:
+    dunctebot:
+        sources:
+            clypit: true
+            getyarn: true
+            mixcloud: true
+            ocremix: true
+            pixeldrain: true
+            pornhub: true
+            reddit: true
+            soundgasm: true
+            tiktok: true
+            tts: true
+        ttsLanguage: en-IN
+    lavalyrics:
+        sources:
+            - spotify
+            - youtube
+            - deezer
+            - lrclib
+            - genius
+    lavasearch:
+        sources:
+            applemusic: true
+            deezer: true
+            soundcloud: true
+            spotify: true
+            youtube: true
+    lavasrc:
+        applemusic:
+            albumLoadLimit: 6
+            countryCode: IN
+            mediaAPIToken: your_apple_api_token_here
+            playlistLoadLimit: 6
+        deezer:
+            arl: your_deezer_arl_here
+            formats:
+                - FLAC
+                - MP3_320
+                - MP3_256
+                - MP3_128
+                - MP3_64
+                - AAC_64
+            masterDecryptionKey: your_master_decryption_key_here
+        flowerytts:
+            audioFormat: mp3
+            silence: 0
+            speed: 1
+            translate: false
+            voice: default
+        jiosaavn:
+            decryption:
+                algorithm: DES
+                secretKey: "your_jiosaavn_secret_key_here"
+                transformation: DES/ECB/PKCS5Padding
+        lyrics-sources:
+            deezer: true
+            lrcLib: true
+            spotify: false
+            vkmusic: false
+            youtube: true
+        providers:
+            - ytsearch:"%ISRC%"
+            - dzisrc:%ISRC%
+            - ytmsearch:%QUERY%
+            - ytsearch:%QUERY%
+        sources:
+            applemusic: true
+            deezer: true
+            flowerytts: true
+            jiosaavn: true
+            spotify: false
+            vkmusic: false
+            youtube: true
+            ytdlp: false
+        youtube:
+            countryCode: IN
+            language: en
+    slugyzeon:
+        providers:
+            - ytsearch:"%ISRC%"
+            - dzisrc:%ISRC%
+            - ytmsearch:%QUERY%
+            - ytsearch:%QUERY%
+        sources:
+            amazonmusic: true
+            gaana: true
+            pandora: true
+            spotify: true
+            youtube: true
+        spotify:
+            spDc: your_spotify_spdc_cookie_here
+        youtube:
+            mirror: true
+            oembed: true
+    sponsorblock:
+        categories:
+            - sponsor
+            - selfpromo
+            - interaction
+            - intro
+            - outro
+            - preview
+            - music_offtopic
+            - filler
+        enabled: true
+    youtube:
+        allowCachedPlayerRequests: true
+        allowDirectPlaylistIds: true
+        allowDirectVideoIds: true
+        allowSearch: true
+        bypassPlaylistThrottling: true
+        clientOptions:
+            ANDROID_MUSIC:
+                playback: true
+                playlistLoading: false
+                searching: false
+                videoLoading: true
+            MUSIC:
+                playback: true
+                playlistLoading: true
+                searching: true
+                videoLoading: true
+            TV:
+                playback: true
+                playlistLoading: false
+                searching: false
+                videoLoading: true
+            WEB:
+                playback: false
+                playlistLoading: true
+                searching: true
+                videoLoading: false
+            WEBEMBEDDED:
+                playback: true
+                playlistLoading: false
+                searching: false
+                videoLoading: true
+        clients:
+            - MUSIC
+            - ANDROID_MUSIC
+            - TV
+            - WEBEMBEDDED
+            - WEB
+        enabled: true
+        oauth:
+            enabled: true
+            refreshToken: your_youtube_refresh_token_here
+            skipInitialization: false
+        pot:
+            token: your_youtube_pot_token_here
+            visitorData: your_youtube_visitor_data_here
+        remoteCipher:
+            enabled: true
+            url: https://cipher.kikkia.dev/
+            userAgent: Mythos#8314
+sentry:
+    dsn: ""
+    environment: ""
+server:
+    address: 0.0.0.0
+    compression:
+        enabled: true
+        mime-types:
+            - application/json
+            - text/plain
+    http2:
+        enabled: true
+    port: 13001
+spring:
+    codec:
+        max-in-memory-size: 100MB
+    main:
+        banner-mode: log
+    mvc:
+        throw-exception-if-no-handler-found: true
