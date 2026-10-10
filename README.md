@@ -1,4 +1,6 @@
 <div align="center">
+<img src="assets/banner.jpg" alt="Mythos Banner">
+<br>
 <img src="assets/mythos.webp" width="150" alt="Mythos Logo">
 
 # Mythos
