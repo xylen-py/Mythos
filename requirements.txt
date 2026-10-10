@@ -1,0 +1,11 @@
+aiohttp
+asyncpg
+pycryptodome
+redis
+discord.py
+psutil
+cachetools
+lavalink
+jishaku
+colorlog
+xylogger

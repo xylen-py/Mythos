@@ -1,0 +1,45 @@
+{
+    "bot_settings": {
+        "token": "https://discord.com/developers/applications",
+        "prefix": ",",
+        "application_owner": 0,
+        "default_color": "#333537",
+        "startup_settings": {
+            "shard_count": 1,
+            "shard_ids": null
+        }
+    },
+    "database": {
+        "postgres_dsn": "https://console.aiven.io/",
+        "redis_url": "https://cloud.redis.io/#/databases"
+    },
+    "music_settings": {
+        "nodes": {
+            "Node1": {
+                "host": "lavalink.domain.com",
+                "port": 2333,
+                "password": "youshallnotpass",
+                "identifier": "LavaLink",
+                "secure": false
+            }
+        },
+        "default_source": "spsearch",
+        "source_emojis": {
+            "ytsearch": "<:youtube:1556658541882777641>",
+            "spsearch": "<:spotifylogo:1556658239373049887>",
+            "amsearch": "<:applemusiclogo:1556658306813141133>",
+            "scsearch": "<:soundcloudlogo:1556658102504530002>",
+            "dzsearch": "<:deezerlogo:1556658424945578044>",
+            "jssearch": "<:Jiosavanlogo:1556658464166641825>",
+            "gnsearch": "<:gaanaalogo:1556658437767569489>",
+            "azsearch": "<:amazonlogo:1556658608891236362>",
+            "pdsearch": "<:pandoralogo:1556658253033775154>"
+        }
+    },
+    "links": {
+        "website": "https://www.domain.com",
+        "support_server": "https://discord.gg/discord",
+        "support_server_id": 0,
+        "support_server_name": "@Mythos Development"
+    }
+}
