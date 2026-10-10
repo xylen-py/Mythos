@@ -15,7 +15,7 @@ A feature-rich, high-performance Discord music bot built with [discord.py](https
 ## Features
 
 - **Multi-Source Music** — Spotify, YouTube, Apple Music, SoundCloud, Deezer, JioSaavn, Gaana, Amazon Music, Pandora
-- **Smart Autoplay** — Automatically queues related tracks when the queue ends using Spotify recommendations and Last.fm
+- **Smart Autoplay** — Automatically queues related tracks natively matching platform algorithms (Spotify Recommendations, YouTube Music Mixes, Deezer Track Recommendations, and smart ISRC-based matching) for perfectly curated listening sessions.
 - **Audio Filters** — Bassboost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, and more
 - **Synced Lyrics** — Real-time lyrics display with timestamp syncing
 - **Player Controls** — Interactive controller with buttons for play/pause, skip, shuffle, loop, and volume
