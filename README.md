@@ -142,6 +142,20 @@ All configuration lives in `data/config.json`. See [`data/config.example.json`](
 | `music_settings.default_source` | Default music search source |
 | `links.support_server` | Support server invite URL |
 
+### Lavalink Configuration (`lavalink/application.yml`)
+
+Mythos relies on a highly customized Lavalink server with several plugins (LavaSrc, SkyBot, SponsorBlock, LavaLyrics, etc.). To enable playback from premium sources, you **must** configure your `lavalink/application.yml` file with the appropriate tokens:
+
+| Service | Configuration Required | How to obtain |
+|---------|------------------------|---------------|
+| **YouTube** | `pot.token`, `pot.visitorData`, `oauth.refreshToken` | Extract from your browser's network tab while logged into YouTube. |
+| **Spotify** | `spDc` cookie | Grab the `sp_dc` cookie from your browser after logging into Spotify. |
+| **Deezer** | `arl`, `masterDecryptionKey` | Get the `arl` cookie from your browser. The decryption key can be found online. |
+| **Apple Music** | `mediaAPIToken` | Extract the JWT token from the Apple Music web player's network requests. |
+| **JioSaavn** | `secretKey` | Required for JioSaavn decryption. |
+
+Ensure you replace the placeholder values (like `your_spotify_spdc_cookie_here`) in your `lavalink/application.yml` before starting your Lavalink server.
+
 ## License
 
 This project is licensed under the **GPL-3.0 License** — see the [LICENSE](LICENSE) file for details. This means if you modify and distribute this code, you must open-source your modifications and provide proper credit to `xylen-py`.
