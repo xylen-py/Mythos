@@ -1,4 +1,5 @@
 <div align="center">
+<img src="assets/mythos.webp" width="150" alt="Mythos Logo">
 
 # Mythos
 
@@ -7,6 +8,7 @@ A feature-rich, high-performance Discord music bot built with [discord.py](https
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![discord.py](https://img.shields.io/badge/discord.py-2.0+-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://github.com/Rapptz/discord.py)
 [![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![Discord Support](https://img.shields.io/discord/1270760786817450086?color=5865F2&label=Support%20Server&logo=discord&logoColor=white&style=for-the-badge)](https://discord.gg/HwHD8a5QXa)
 
 </div>
 
@@ -174,6 +176,16 @@ Once your tokens are configured, start the Lavalink server:
 java -jar Lavalink.jar
 ```
 Lavalink will automatically download the required plugins specified in the `application.yml` on its first startup. Ensure the node details (Host, Port, and Password) in your `data/config.json` match the values defined in your `application.yml`.
+## Support
+
+Need help setting up the bot or want to stay updated on the latest features? Join the official Mythos support server!
+
+<div align="center">
+  <a href="https://discord.gg/HwHD8a5QXa">
+    <img src="https://discordapp.com/api/guilds/1270760786817450086/widget.png?style=banner2" alt="Discord Server Widget">
+  </a>
+</div>
+
 ## License
 
 This project is licensed under the **GPL-3.0 License** — see the [LICENSE](LICENSE) file for details. This means if you modify and distribute this code, you must open-source your modifications and provide proper credit to `xylen-py`.
