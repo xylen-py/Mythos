@@ -974,7 +974,7 @@ class Music(commands.Cog):
         view = AddedToQueueControls(player, track, section, is_first)
         await ctx.reply(view=view, allowed_mentions=discord.AllowedMentions.none())
 
-    @commands.command(name="nowplaying", aliases=["nowp"], description="Shows the current playing song.")
+    @commands.hybrid_command(name="nowplaying", aliases=["nowp"], description="Shows the current playing song.")
     @commands.guild_only()
     @requires_voice()
     @bl_ignore_check()
@@ -1006,7 +1006,7 @@ class Music(commands.Cog):
         await send_success_message(ctx, "Autoplay Toggled", f"Autoplay is now `{'enabled' if player.autoplay else 'disabled'}` for this server.")
         self.bot.loop.create_task(self.process_autoplay(player))
 
-    @commands.command(name="history", aliases=["recents"], description="Displays the song history of the server.")
+    @commands.hybrid_command(name="history", aliases=["recents"], description="Displays the song history of the server.")
     @commands.guild_only()
     @requires_voice()
     @bl_ignore_check()
@@ -1035,7 +1035,7 @@ class Music(commands.Cog):
         paginator = Paginator(ctx, pages, jump_button=True, page_counter=True, reply=True, extra_items=[select], on_page_change=lambda page, _: select.update_page(page))
         await paginator.start()
 
-    @commands.command(name="queue", aliases=["q"], description="Displays the song queue of the server.")
+    @commands.hybrid_command(name="queue", aliases=["q"], description="Displays the song queue of the server.")
     @commands.guild_only()
     @requires_voice()
     @bl_ignore_check()
