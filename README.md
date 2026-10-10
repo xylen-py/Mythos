@@ -14,16 +14,21 @@ A feature-rich, high-performance Discord music bot built with [discord.py](https
 
 ## Features
 
-- **Multi-Source Music** — Spotify, YouTube, Apple Music, SoundCloud, Deezer, JioSaavn, Gaana, Amazon Music, Pandora
-- **Smart Autoplay** — Automatically queues related tracks natively matching platform algorithms (Spotify Recommendations, YouTube Music Mixes, Deezer Track Recommendations, and smart ISRC-based matching) for perfectly curated listening sessions.
-- **Audio Filters** — Bassboost, nightcore, vaporwave, 8D, karaoke, tremolo, vibrato, and more
-- **Synced Lyrics** — Real-time lyrics display with timestamp syncing
-- **Player Controls** — Interactive controller with buttons for play/pause, skip, shuffle, loop, and volume
-- **AFK System** — Set AFK status with mention tracking across servers
-- **Blacklist & Ignore** — Granular control over users, servers, channels, and roles
-- **Sharding** — Built-in auto-sharding support for scaling across thousands of servers
-- **Hybrid Commands** — All commands work as both slash commands and text commands
-- **Application Emojis** — Emoji migration utility to move all custom emojis to application-owned emojis
+### Core Audio Engine
+- **Extensive Platform Support**: Seamless playback from Spotify, YouTube, Apple Music, SoundCloud, Deezer, JioSaavn, Gaana, Amazon Music, and Pandora.
+- **Intelligent Native Autoplay**: Employs advanced native algorithms (Spotify Recommendations, YouTube Music Mixes, Deezer Track Recommendations, and exact ISRC matching) to perfectly curate infinite listening sessions without relying on poor-quality third-party fallbacks.
+- **Studio-Grade DSP Filters**: Apply real-time digital signal processing effects including Bassboost, Nightcore, Vaporwave, 8D Audio, Karaoke, Tremolo, and Vibrato without latency penalties.
+
+### User Experience
+- **Dynamic Interactive Controller**: A fully functional, responsive button-based player interface allowing intuitive control over playback, skipping, shuffling, looping, and volume manipulation.
+- **Precision Synced Lyrics**: Real-time lyrics fetching engine that synchronizes perfectly with the audio timestamp, providing an immersive sing-along experience.
+- **Hybrid Command Architecture**: 100% compatibility across both traditional text-based prefix commands and modern Discord slash commands for ultimate user accessibility.
+- **Persistent Global AFK System**: A robust cross-server AFK tracking system that alerts users instantly when a tagged member is currently away.
+
+### Moderation & Infrastructure
+- **Granular Access Control (Nexus System)**: Absolute administrative control featuring comprehensive blacklist and ignore mechanics targeting specific users, roles, channels, or entire guilds.
+- **Application-Owned Emojis**: Includes a fully automated `migrate.py` utility that scrapes, downloads, and migrates custom emojis directly to your bot's application scope, bypassing server-based emoji slots.
+- **Enterprise-Grade Scaling**: Built-in AutoSharding support backed by Redis caching and PostgreSQL persistent storage, designed from the ground up to efficiently handle thousands of concurrent voice connections.
 
 ## Tech Stack
 
@@ -142,20 +147,33 @@ All configuration lives in `data/config.json`. See [`data/config.example.json`](
 | `music_settings.default_source` | Default music search source |
 | `links.support_server` | Support server invite URL |
 
-### Lavalink Configuration (`lavalink/application.yml`)
+### Lavalink Server Setup & Configuration
 
-Mythos relies on a highly customized Lavalink server with several plugins (LavaSrc, SkyBot, SponsorBlock, LavaLyrics, etc.). To enable playback from premium sources, you **must** configure your `lavalink/application.yml` file with the appropriate tokens:
+Mythos requires a highly customized Lavalink v4+ instance with specific plugins (LavaSrc, SkyBot, SponsorBlock, LavaLyrics, LavaSearch, and SlugYZeon) to function correctly. A pre-configured `application.yml` is provided in the `lavalink/` directory.
 
-| Service | Configuration Required | How to obtain |
-|---------|------------------------|---------------|
-| **YouTube** | `pot.token`, `pot.visitorData`, `oauth.refreshToken` | Extract from your browser's network tab while logged into YouTube. |
-| **Spotify** | `spDc` cookie | Grab the `sp_dc` cookie from your browser after logging into Spotify. |
-| **Deezer** | `arl`, `masterDecryptionKey` | Get the `arl` cookie from your browser. The decryption key can be found online. |
-| **Apple Music** | `mediaAPIToken` | Extract the JWT token from the Apple Music web player's network requests. |
-| **JioSaavn** | `secretKey` | Required for JioSaavn decryption. |
+#### Step 1: Server Installation
+1. Install **Java 17** or newer on your host machine.
+2. Download the latest `Lavalink.jar` (v4.0.0 or higher) from the official [Lavalink releases](https://github.com/lavalink-devs/Lavalink/releases).
+3. Create a folder named `lavalink` and place the downloaded `Lavalink.jar` inside it.
+4. Copy the provided `lavalink/application.yml` from this repository into your new `lavalink` folder next to the JAR file.
 
-Ensure you replace the placeholder values (like `your_spotify_spdc_cookie_here`) in your `lavalink/application.yml` before starting your Lavalink server.
+#### Step 2: Configuring Tokens
+To enable playback and searching across premium platforms, you must provide valid credentials in your `application.yml` file. Open `lavalink/application.yml` and replace the placeholder strings with your actual data:
 
+| Service | Required Fields | Acquisition Method |
+|---------|----------------|-------------------|
+| **YouTube** | `pot.token`<br>`pot.visitorData`<br>`oauth.refreshToken` | Obtain PoT tokens by inspecting network requests (specifically `player` requests) on YouTube Music. Use a Lavalink OAuth generator for the refresh token. |
+| **Spotify** | `spDc` | Log into Spotify in an incognito window, open Developer Tools (F12) -> Application -> Cookies, and copy the value of `sp_dc`. |
+| **Deezer** | `arl`<br>`masterDecryptionKey` | Extract the `arl` cookie from Deezer via browser Developer Tools. The master decryption key can be found in public audio engineering or Lavalink forums. |
+| **Apple Music**| `mediaAPIToken` | Inspect network requests on the Apple Music Web Player (listen.apple.com) and locate the JWT token in the request headers. |
+| **JioSaavn** | `secretKey` | Required for decrypting JioSaavn media streams. Replace the placeholder with the appropriate DES encryption key. |
+
+#### Step 3: Running the Server
+Once your tokens are configured, start the Lavalink server:
+```bash
+java -jar Lavalink.jar
+```
+Lavalink will automatically download the required plugins specified in the `application.yml` on its first startup. Ensure the node details (Host, Port, and Password) in your `data/config.json` match the values defined in your `application.yml`.
 ## License
 
 This project is licensed under the **GPL-3.0 License** — see the [LICENSE](LICENSE) file for details. This means if you modify and distribute this code, you must open-source your modifications and provide proper credit to `xylen-py`.
