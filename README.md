@@ -1,9 +1,6 @@
 <div align="center">
-<img src="assets/banner.jpg" alt="Mythos Banner">
-<br>
-<img src="assets/mythos.webp" width="150" alt="Mythos Logo">
 
-# Mythos
+# <img src="assets/mythos.webp" width="45" align="top"> Mythos
 
 A feature-rich, high-performance Discord music bot built with [discord.py](https://github.com/Rapptz/discord.py) and [Lavalink](https://github.com/lavalink-devs/Lavalink).
 
@@ -15,6 +12,10 @@ A feature-rich, high-performance Discord music bot built with [discord.py](https
 </div>
 
 ---
+
+<div align="center">
+  <img src="assets/banner.jpg" alt="Mythos Banner">
+</div>
 
 ## Features
 
