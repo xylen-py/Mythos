@@ -419,10 +419,10 @@ class AddedToQueueControls(discord.ui.LayoutView):
 
         if not is_first:
             play_next_disabled = len(player.queue) <= 1
-            self.btn_next = discord.ui.Button(label="Play Next", style=discord.ButtonStyle.secondary, disabled=play_next_disabled, emoji="<:next:1493501040585347112>")
+            self.btn_next = discord.ui.Button(label="Play Next", style=discord.ButtonStyle.secondary, disabled=play_next_disabled, emoji="<:next:1556658637013917863>")
             self.btn_next.callback = self.play_next
             
-            self.btn_remove = discord.ui.Button(label="Remove", style=discord.ButtonStyle.red, emoji="<:remove:1495162872240537690>")
+            self.btn_remove = discord.ui.Button(label="Remove", style=discord.ButtonStyle.red, emoji="<:remove:1556658477353541713>")
             self.btn_remove.callback = self.remove
             
             items.append(discord.ui.Separator(visible=False))
@@ -631,7 +631,7 @@ class Music(commands.Cog):
                     ]
 
                     if support_url:
-                        btn = discord.ui.Button(label="Support Server", emoji="<:dev:1495147599194488873>", url=support_url, style=discord.ButtonStyle.link)
+                        btn = discord.ui.Button(label="Support Server", emoji="<:dev:1556658595901341746>", url=support_url, style=discord.ButtonStyle.link)
                         items.append(discord.ui.ActionRow(btn))
 
                     container = discord.ui.Container(*items, accent_colour=None)
@@ -679,7 +679,6 @@ class Music(commands.Cog):
         if not player:
             return
         
-        self.bot.dispatch("track_start", player, event.track)
         await update_vc_status(player, self.bot)
         guild = self.bot.get_guild(player.guild_id)
         
@@ -756,7 +755,7 @@ class Music(commands.Cog):
             ]
 
             if support_url:
-                btn = discord.ui.Button(label="Support Server", emoji="<:dev:1495147599194488873>", url=support_url, style=discord.ButtonStyle.link)
+                btn = discord.ui.Button(label="Support Server", emoji="<:dev:1556658595901341746>", url=support_url, style=discord.ButtonStyle.link)
                 items.append(discord.ui.ActionRow(btn))
 
             container = discord.ui.Container(
@@ -778,21 +777,17 @@ class Music(commands.Cog):
 
         potential_seeds = itertools.chain([player.current] if player.current else [], reversed(player.history))
         seed = next((s for s in potential_seeds if s.identifier and s.identifier not in player.used_autoplay_seeds), None)
-        seed_uri = seed.extra.get('original_uri', seed.uri) if seed else None
-        
-        if not seed_uri:
-            return
 
         player.used_autoplay_seeds.add(seed.identifier)
         
         match True:
-            case _ if self.spotify_rx.match(seed_uri):
+            case _ if self.spotify_rx.match(seed.uri):
                 query = f"sprec:{seed.identifier}"
-            case _ if self.youtube_rx.match(seed_uri):
+            case _ if self.youtube_rx.match(seed.uri):
                 query = f"https://music.youtube.com/watch?v={seed.identifier}&list=RD{seed.identifier}"
-            case _ if self.deezer_rx.match(seed_uri):
+            case _ if self.deezer_rx.match(seed.uri):
                 query = f"dzrec:track={seed.identifier}"
-            case _ if self.saavn_rx.match(seed_uri):
+            case _ if self.saavn_rx.match(seed.uri):
                 query = f"jsrec:{seed.identifier}"
             case _ if seed.isrc:
                 query = f"sprec:mix:isrc:{seed.isrc}"
@@ -819,9 +814,6 @@ class Music(commands.Cog):
             return
             
         for track in random.sample(valid_tracks, min(3, len(valid_tracks))):
-            if seed.extra.get('ztunes_id'):
-                track = await self.ztunes.register(track)
-                
             player.add(track, requester=seed.requester)
 
         if player.queue and not player.is_playing:
