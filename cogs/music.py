@@ -301,6 +301,11 @@ class MusicControls(discord.ui.LayoutView):
 
     async def autoplay(self, interaction: discord.Interaction):
         self.player.autoplay = not self.player.autoplay
+        music = self.bot.get_cog("Music")
+
+        if music and self.player.autoplay:
+            self.bot.loop.create_task(music.process_autoplay(self.player))
+
         await send_response(interaction, f"Autoplay has been **{'enabled' if self.player.autoplay else 'disabled'}**.", delete_after=7)
 
     async def shuffle_queue(self, interaction: discord.Interaction):
