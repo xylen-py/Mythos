@@ -20,6 +20,7 @@ Author: xylen-py
 GitHub: https://github.com/xylen-py
 """
 
+from discord              import app_commands
 from discord.ext          import commands
 import random
 import asyncio
@@ -30,11 +31,12 @@ import redis.asyncio      as aioredis
 from lavalink             import DefaultPlayer
 
 from config               import default_source
+from music                import requires_voice, sanitize_title
 from utils.parse_duration import parse_duration
 from utils.success_send   import send_success_message
 from utils.send_errors    import send_error_embed
 from utils.bl_ignore      import bl_ignore_check
-from cogs.music           import requires_voice, sanitize_title, track_uri
+from cogs.music           import track_uri, format_duration
 
 class MusicControls(commands.Cog):
     def __init__(self, bot):
@@ -237,35 +239,53 @@ class MusicControls(commands.Cog):
         await player.seek(0)
         await send_success_message(ctx, "Track replayed", "The current track has been replayed.")
 
-    @commands.hybrid_command(name="seek", aliases=["sk"], description="Jumps to a specific time by percentage (0 to 100)")
+    @commands.hybrid_command(name="seek", aliases=["sk"], description="Jumps to a specific timestamp in the track.")
+    @app_commands.describe(position="Timestamp to seek to (e.g. 1:30, 02:45, 1:15:30).")
     @commands.guild_only()
     @requires_voice()
     @bl_ignore_check()
     @commands.cooldown(1, 6, commands.BucketType.user)
-    async def seek(self, ctx: commands.Context, percentage: int):
+    async def seek(self, ctx: commands.Context, *, position: str):
         player = self.get_player(ctx.guild.id)
 
         if not player or not player.current:
             return await send_error_embed(ctx, "No music is currently playing to seek.")
 
-        if not (0 <= percentage <= 100):
-            return await send_error_embed(ctx, "Invalid percentage. Please use a value between 0 and 100.")
+        target_ms = None
+        pos = position.strip()
 
-        await player.seek(int(percentage * player.current.duration / 100))
-        await send_success_message(ctx, "Player seeked", f"Jumped to `{percentage}%` in the current track.")
+        if ':' in pos:
+            parts = pos.split(':')
+
+            if 2 <= len(parts) <= 3 and all(p.isdigit() for p in parts):
+                target_ms = sum(int(x) * 60**i for i, x in enumerate(reversed(parts))) * 1000
+
+        total = format_duration(player.current.duration, clock=True)
+
+        if target_ms is None or target_ms < 0 or target_ms > player.current.duration:
+            return await send_error_embed(
+                ctx, 
+                f"Invalid timestamp. Please use format like `1:30` or `1:05:30` (within `0:00` to `{total}`)."
+            )
+
+        await player.seek(target_ms)
+        pct = int(target_ms * 100 / player.current.duration) if player.current.duration else 0
+        cpt = format_duration(target_ms, clock=True)
+        await send_success_message(ctx, "Player seeked", f"Jumped to `{cpt}` (`{pct}%`) in the current track.")
 
     @commands.hybrid_command(name="forward", aliases=["ff"], description="Fast-forwards the current track")
+    @app_commands.describe(duration="The duration to fast-forward (e.g. 5s, 10s, 1m).")
     @commands.guild_only()
     @requires_voice()
     @bl_ignore_check()
     @commands.cooldown(1, 6, commands.BucketType.user)
-    async def forward(self, ctx: commands.Context, position: str):
+    async def forward(self, ctx: commands.Context, *, duration: str):
         player = self.get_player(ctx.guild.id)
 
         if not player or not player.current:
             return await send_error_embed(ctx, "No music is currently playing to fast-forward.")
 
-        parsed_time = parse_duration(position)
+        parsed_time = parse_duration(duration)
 
         if parsed_time is None:
             return await send_error_embed(ctx, "Invalid duration provided. Please use format like 5s, 10s, 1m")
@@ -275,20 +295,21 @@ class MusicControls(commands.Cog):
 
         new_position = player.position + parsed_time.total_seconds() * 1000
         await player.seek(int(new_position))
-        await send_success_message(ctx, "Track fast-forwarded", f"Fast-forwarded the current track by `{position}`.")
+        await send_success_message(ctx, "Track fast-forwarded", f"Fast-forwarded the current track by `{duration}`.")
 
     @commands.hybrid_command(name="rewind", aliases=["rw"], description="Rewinds the current track")
+    @app_commands.describe(duration="The duration to rewind (e.g. 5s, 10s, 1m).")
     @commands.guild_only()
     @requires_voice()
     @bl_ignore_check()
     @commands.cooldown(1, 6, commands.BucketType.user)
-    async def rewind(self, ctx: commands.Context, position: str):
+    async def rewind(self, ctx: commands.Context, *, duration: str):
         player = self.get_player(ctx.guild.id)
 
         if not player or not player.current:
             return await send_error_embed(ctx, "No music is currently playing to rewind.")
 
-        parsed_time = parse_duration(position)
+        parsed_time = parse_duration(duration)
 
         if parsed_time is None:
             return await send_error_embed(ctx, "Invalid duration provided. Please use format like 5s, 10s, 1m")
@@ -298,7 +319,7 @@ class MusicControls(commands.Cog):
 
         new_position = player.position - parsed_time.total_seconds() * 1000
         await player.seek(int(new_position))
-        await send_success_message(ctx, "Track rewound", f"Rewound the current track by `{position}`.")
+        await send_success_message(ctx, "Track rewound", f"Rewound the current track by `{duration}`.")
 
     @commands.hybrid_command(name="loop", aliases=["lp"], description="Toggles looping or sets specific mode (queue & track & off).")
     @commands.guild_only()
@@ -430,43 +451,36 @@ class MusicControls(commands.Cog):
 
         await send_error_embed(ctx, f"Invalid positions, must be between 1 and {len(player.queue)}.")
 
-    @commands.hybrid_command(name="skip", aliases=["s", "next"], description="Skips the current track.")
+    @commands.hybrid_command(name="skip", aliases=["s", "next"], description="Skips the current track or skips to a specific track in the queue.")
+    @app_commands.describe(position="The position of the track in the queue to skip to.")
     @commands.guild_only()
     @requires_voice()
     @bl_ignore_check()
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def skip(self, ctx: commands.Context):
-        player = self.get_player(ctx.guild.id)
-
-        if not player or not player.current:
-            return await send_error_embed(ctx, "No music is currently playing to skip.")
-
-        current_song = player.current
-
-        await player.skip()
-        await send_success_message(ctx, "Track skipped", f"Successfully skipped track **[{sanitize_title(current_song.title)}]({track_uri(current_song)})**")
-
-    @commands.hybrid_command(name="skipinto", description="Skips to a specific track number in the queue.")
-    @commands.guild_only()
-    @requires_voice()
-    @bl_ignore_check()
-    @commands.cooldown(1, 5, commands.BucketType.user)
-    async def skipinto(self, ctx: commands.Context, position: int):
+    async def skip(self, ctx: commands.Context, position: Optional[int] = None):
         player = self.get_player(ctx.guild.id)
 
         if not player:
             return await send_error_embed(ctx, "No active player found in this server.")
 
-        if not player.queue:
-            return await send_error_embed(ctx, "The music queue is empty right now.")
+        if position is not None:
+            if not player.queue:
+                return await send_error_embed(ctx, "The music queue is empty right now.")
 
-        target_index = position - 1
-        if not (0 <= target_index < len(player.queue)):
-            return await send_error_embed(ctx, f"Invalid position, must be between 1 and {len(player.queue)}.")
+            target_index = position - 1
+            if not (0 <= target_index < len(player.queue)):
+                return await send_error_embed(ctx, f"Invalid position, must be between 1 and {len(player.queue)}.")
 
-        del player.queue[:target_index]
+            del player.queue[:target_index]
+            await player.skip()
+            return await send_success_message(ctx, "Tracks skipped", f"Skipped to track at position `{position}`.")
+
+        if not player.current:
+            return await send_error_embed(ctx, "No music is currently playing to skip.")
+
+        current_song = player.current
         await player.skip()
-        await send_success_message(ctx, "Tracks skipped", f"Skipped to track at position `{position}`.")
+        await send_success_message(ctx, "Track skipped", f"Successfully skipped track **[{sanitize_title(current_song.title)}]({track_uri(current_song)})**")
 
 async def setup(bot):
     await bot.add_cog(MusicControls(bot))

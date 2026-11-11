@@ -38,8 +38,8 @@ class Advertise(commands.Cog):
         embed = discord.Embed(
             description=(
                 "<:greydot:1556658333023346840> **Thanks for adding !**\n\n"
-                "<:greydot:1556658333023346840> My default prefix is `.`\n"
-                "<:greydot:1556658333023346840> Use `.help` or `/help` in the server for commands\n"
+                f"<:greydot:1556658333023346840> My default prefix is `{config.default_prefix}`\n"
+                f"<:greydot:1556658333023346840> Use `{config.default_prefix}help` or `/help` in the server for commands\n"
                 f"<:greydot:1556658333023346840> For questions or details join **[Support server]({config.support_url})**"
             ),
             color=discord.Color.from_rgb(54, 57, 63),
