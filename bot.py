@@ -134,7 +134,7 @@ class Client(commands.AutoShardedBot):
             "chunk_guilds_at_startup": False,
             "heartbeat_timeout": 150.0,
             "status": discord.Status.dnd,
-            "activity": discord.Activity(type=discord.ActivityType.listening, name="♬ Tunes Infinity ...")
+            "activity": discord.Activity(type=discord.ActivityType.listening, name="/help | ♬ Infinity ...")
         }
 
         if config.shard_ids:

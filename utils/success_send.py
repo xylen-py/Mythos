@@ -22,42 +22,21 @@ GitHub: https://github.com/xylen-py
 
 import discord
 from discord.ext import commands
-from typing import Union, Optional
-from config import default_color
+from typing import Union
+
+successColor = discord.Color.from_str("#008001")
 
 async def send_success_message(
     ctx: Union[commands.Context, discord.Interaction, discord.abc.Messageable], 
     topic: str, 
-    description: str, 
-    user: Optional[Union[discord.Member, discord.User]] = None
+    description: str
 ):
-    now = discord.utils.utcnow()
-    start_time = now
-
-    if isinstance(ctx, commands.Context):
-        start_time = ctx.message.created_at
-        user = user or ctx.author
-        
-    elif isinstance(ctx, discord.Interaction):
-        start_time = ctx.created_at
-        user = user or ctx.user
-    
-    execution_time = (now - start_time).total_seconds()
-
-    # footer_text = f"-# Action in `{execution_time:.1f}s`"
-    footer_text = f""
-    # if user:
-    #     footer_text += f"-# Action by {user.mention} (`{user.name}`)"
-
-    content_text = (
-        f"**<:wccheckmark:1556658412106817567> {topic.title()}**\n"
-        f"<:arrow:1556658266056953899> {description}\n\n"
-        f"{footer_text}"
-    )
-
     container = discord.ui.Container(
-        discord.ui.TextDisplay(content=content_text),
-        accent_colour=default_color
+        discord.ui.TextDisplay(content=(
+            f"**{topic.title()}**\n"
+            f"<:warrow:1569984073139753010> {description}"
+        )),
+        accent_colour=successColor
     )
 
     view = discord.ui.LayoutView()

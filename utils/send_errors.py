@@ -24,44 +24,32 @@ import discord
 from discord.ext import commands
 from typing import Union, Optional
 
-async def send_error_embed(ctx: Union[commands.Context, discord.Interaction, discord.abc.Messageable], error_message: str, delete_after: int = None, user: Optional[Union[discord.Member, discord.User]] = None):
-    if isinstance(ctx, commands.Context):
-        user = user or ctx.author
-        
-    elif isinstance(ctx, discord.Interaction):
-        user = user or ctx.user
+errorColor = discord.Color.from_str("#f44336")
 
-    footer_text = ""
-    # if user:
-    #     footer_text = f"-# Action by {user.mention} (`{user.name}`)"
-
-    items = [
-        discord.ui.TextDisplay(content=(
-            f"**Process Denied !**\n"
-            f"<:space:1556658570198515804><:wccrossmar:1556658451021701167> {error_message}"
-        ))
-    ]
-
-    if footer_text:
-        items.append(discord.ui.Separator(visible=False))
-        items.append(discord.ui.TextDisplay(content=footer_text))
-
+async def send_error_embed(
+    ctx: Union[commands.Context, discord.Interaction, discord.abc.Messageable],
+    error_message: str,
+    delete_after: Optional[int] = None
+):
     container = discord.ui.Container(
-        *items,
-        accent_colour=discord.Colour(0xF44336)
+        discord.ui.TextDisplay(content=f"<:wccrossmar:1556658451021701167> {error_message}"),
+        accent_colour=errorColor
     )
 
     view = discord.ui.LayoutView()
     view.add_item(container)
 
-    if not isinstance(ctx, discord.Interaction):
-        return await ctx.send(view=view, allowed_mentions=discord.AllowedMentions.none(), delete_after=delete_after)
+    interaction = ctx if isinstance(ctx, discord.Interaction) else ctx.interaction
 
-    if ctx.response.is_done():
-        return await ctx.followup.send(view=view, allowed_mentions=discord.AllowedMentions.none(), ephemeral=True)
+    if interaction and not interaction.is_expired():
         
-    await ctx.response.send_message(view=view, allowed_mentions=discord.AllowedMentions.none(), ephemeral=True)
-    return await ctx.original_response()
+        if interaction.response.is_done():
+            return await interaction.followup.send(view=view, allowed_mentions=discord.AllowedMentions.none(), ephemeral=True)
+
+        await interaction.response.send_message(view=view, allowed_mentions=discord.AllowedMentions.none(), ephemeral=True)
+        return await interaction.original_response()
+
+    return await ctx.send(view=view, allowed_mentions=discord.AllowedMentions.none(), delete_after=delete_after)
 
 """
 Mythos Discord Bot

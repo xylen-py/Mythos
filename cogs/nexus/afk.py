@@ -22,11 +22,11 @@ GitHub: https://github.com/xylen-py
 
 import discord
 from discord.ext import commands
+from discord import app_commands
 import datetime
 import asyncpg
 import json
-
-from typing import cast, List
+from typing import cast, List, Optional, Union
 from dataclasses import dataclass, field, asdict
 from config import default_color, support_url
 from utils.bl_ignore import bl_ignore_check
@@ -36,6 +36,14 @@ class AfkMention:
     mentioner_id: int
     message_id: int
     channel_id: int
+
+    @classmethod
+    def from_message(cls, message: discord.Message):
+        return cls(
+            mentioner_id=message.author.id,
+            message_id=message.id,
+            channel_id=message.channel.id
+        )
 
 @dataclass
 class AfkData:
@@ -66,7 +74,6 @@ class Afk(commands.Cog):
         self.bot = bot
         self.db = cast(asyncpg.Pool, self.bot.db)
         self.cache = {}
-        self.default_reason = "~ Busy </>"
         self.cooldown = commands.CooldownMapping.from_cooldown(1, 10, commands.BucketType.member)
         self.bot.loop.create_task(self.connect_db())
 
@@ -82,15 +89,8 @@ class Afk(commands.Cog):
         rows = await self.db.fetch("SELECT user_id, config FROM afk")
 
         for row in rows:
-            user_id = row['user_id']
             config = json.loads(row['config'])
-            self.cache[user_id] = {int(gid): AfkData.from_dict(data) for gid, data in config.items()}
-
-    def get_afk_config(self, user_id: int) -> dict:
-        if user_id not in self.cache:
-            self.cache[user_id] = {}
-            
-        return self.cache[user_id]
+            self.cache[row['user_id']] = {int(gid): AfkData.from_dict(data) for gid, data in config.items()}
 
     async def save_config(self, user_id: int):
         if user_id not in self.cache or not self.cache[user_id]:
@@ -115,7 +115,7 @@ class Afk(commands.Cog):
             if afk and not member.display_name.startswith("[AFK]"):
                 return await member.edit(nick=f"[AFK] {member.display_name}"[:32], reason="[AFK] AFK Status Set")
                     
-            elif member.display_name.startswith("[AFK] "):
+            if not afk and member.display_name.startswith("[AFK] "):
                 await member.edit(nick=member.display_name[6:], reason="[AFK] AFK Status Removed")
 
         except:
@@ -130,24 +130,38 @@ class Afk(commands.Cog):
         embed.set_author(name=f"{message.author.name}, Welcome Back!", icon_url=message.author.display_avatar.url)
 
         if afk_info.mentions:
-            field_value = []
+            mentions = []
+            for m in afk_info.mentions[-8:]:
+                link = f"https://discord.com/channels/{message.guild.id}/{m.channel_id}/{m.message_id}"
+                mentions.append(f"<@{m.mentioner_id}> - [Jump to message]({link})")
 
-            for mention in afk_info.mentions[-8:]:
-                link = f"https://discord.com/channels/{message.guild.id}/{mention.channel_id}/{mention.message_id}"
-                field_value.append(f"<@{mention.mentioner_id}> - [Jump to message]({link})")
-
-            if field_value:
-                embed.add_field(name="Mentions", value="\n".join(field_value), inline=False)
+            embed.add_field(name="Mentions", value="\n".join(mentions), inline=False)
 
         await message.reply(embed=embed, allowed_mentions=discord.AllowedMentions.none())
 
+    async def send_notify(self, message: discord.Message, user: Union[discord.Member, discord.User], afk_info: AfkData):
+        bucket = self.cooldown.get_bucket(message)
+        if bucket and bucket.update_rate_limit():
+            return
+
+        self.cache[user.id][message.guild.id].mentions.append(AfkMention.from_message(message))
+        await self.save_config(user.id)
+
+        embed = discord.Embed(description=f"Went AFK <t:{int(afk_info.time.timestamp())}:R> with the reason [**{afk_info.reason}**]({support_url})", color=default_color)
+        embed.set_author(name=f"{user.name}, away from keyboard ...!!", icon_url=user.display_avatar.url)
+        await message.reply(embed=embed, allowed_mentions=discord.AllowedMentions.none())
+
     @commands.hybrid_command(name="afk", description="Set your AFK status for this server.")
+    @app_commands.describe(reason="The reason for going AFK.")
     @commands.guild_only()
     @bl_ignore_check()
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def afk(self, ctx, *, reason: str = None):
-        reason = reason or self.default_reason
-        self.get_afk_config(ctx.author.id)
+    async def afk(self, ctx: commands.Context, *, reason: Optional[str] = None):
+        await ctx.defer()
+        reason = reason or "No reason provided"
+        
+        if ctx.author.id not in self.cache:
+            self.cache[ctx.author.id] = {}
         
         self.cache[ctx.author.id][ctx.guild.id] = AfkData(
             reason=reason, time=discord.utils.utcnow(), guild_id=ctx.guild.id, mentions=[]
@@ -155,7 +169,6 @@ class Afk(commands.Cog):
 
         await self.save_config(ctx.author.id)
         await self.update_nickname(ctx.author, afk=True)
-        
         embed = discord.Embed(color=default_color)
         embed.set_author(name=f"{ctx.author.name}, Your AFK has been set!", icon_url=ctx.author.display_avatar.url)
         await ctx.reply(embed=embed, allowed_mentions=discord.AllowedMentions.none())
@@ -170,33 +183,15 @@ class Afk(commands.Cog):
         if ctx.valid and ctx.command and ctx.command.name == "afk":
             return
 
-        author_config = self.get_afk_config(message.author.id)
+        config = self.cache.get(message.author.id, {})
 
-        if message.guild.id in author_config:
-            return await self.send_return(message, author_config[message.guild.id])
+        if message.guild.id in config:
+            return await self.send_return(message, config[message.guild.id])
 
-        for user in message.mentions:
-            if user.bot:
-                continue
-            
-            user_config = self.get_afk_config(user.id)
-            
-            if message.guild.id in user_config:
-                bucket = self.cooldown.get_bucket(message)
-                
-                if bucket and bucket.update_rate_limit():
-                    continue
-
-                afk_info = user_config[message.guild.id]
-                new_mention = AfkMention(mentioner_id=message.author.id, message_id=message.id, channel_id=message.channel.id)
-                self.cache[user.id][message.guild.id].mentions.append(new_mention)
-                await self.save_config(user.id)
-
-                embed = discord.Embed(description=f"Went AFK <t:{int(afk_info.time.timestamp())}:R> with the reason [**{afk_info.reason}**]({support_url})", color=default_color)
-                embed.set_author(name=f"{user.name}, away from keyboard ...!!", icon_url=user.display_avatar.url)
-                
-                await message.reply(embed=embed, allowed_mentions=discord.AllowedMentions.none())
-                break
+        user = next((u for u in message.mentions if not u.bot and message.guild.id in self.cache.get(u.id, {})), None)
+        
+        if user:
+            await self.send_notify(message, user, self.cache[user.id][message.guild.id])
 
 async def setup(bot):
     await bot.add_cog(Afk(bot))

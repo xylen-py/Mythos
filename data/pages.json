@@ -1,0 +1,71 @@
+{
+    "pages": [
+        {
+            "title": "Home",
+            "description": "Go to the home page",
+            "emoji": "<:home_8028:1505158901702852618>",
+            "layout": {
+                "header": "Hey, I'm **{bot:name}** <:cute:1569979525490544660>",
+                "thumbnail": "{bot:avatar}",
+                "description": "A minimalist music bot with simple controls and multi-platform support. Choose a category below to explore commands!\n\n- **Prefix :** `/` • `@{bot:name}`\n- **Help :** `/help [command]`",
+                "sections": [
+                    {
+                        "title": "<:link:1505158966962032640> __Links__",
+                        "content": "[Invite me]({bot:invite})  •  [Support Server]({bot:support})"
+                    }
+                ],
+                "footer_text": "Powered By {bot:name} Devs • {bot:commands} Commands"
+            }
+        },
+        {
+            "title": "General Commands",
+            "description": "Shows the general commands",
+            "emoji": "<:cute:1569979525490544660>",
+            "layout": {
+                "sections": [
+                    { "title": "__General Commands__", "content": "{module:Afk}\n{module:Pfp}" }
+                ]
+            }
+        },
+        {
+            "title": "Information Commands",
+            "description": "Shows the information commands",
+            "emoji": "<:cute:1569979525490544660>",
+            "layout": {
+                "sections": [
+                    { "title": "__Information Commands__", "content": "{module:Info}\n{module:Invite}\n{module:Stats}" }
+                ]
+            }
+        },
+        {
+            "title": "Music Commands",
+            "description": "Shows the music commands",
+            "emoji": "<:cute:1569979525490544660>",
+            "layout": {
+                "sections": [
+                    { "title": "__Music Commands__", "content": "{module:Music}\n{module:Lyrics}" }
+                ]
+            }
+        },
+        {
+            "title": "Music Controls",
+            "description": "Shows the music control commands",
+            "emoji": "<:cute:1569979525490544660>",
+            "layout": {
+                "sections": [
+                    { "title": "__Music Controls__", "content": "{module:MusicControls}" }
+                ]
+            }
+        },
+        {
+            "title": "Filter Commands",
+            "description": "Shows the filter commands",
+            "emoji": "<:cute:1569979525490544660>",
+            "layout": {
+                "sections": [
+                    { "title": "__Filter Commands__", "content": "{module:Filter}" }
+                ]
+            }
+        }
+    ]
+}

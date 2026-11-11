@@ -22,7 +22,7 @@ GitHub: https://github.com/xylen-py
 
 import discord
 from discord.ext import commands
-from config import default_color, support_url
+from config import default_color
 from utils.blacklist_check import is_guild_blacklisted, is_user_blacklisted
 
 class OnMention(commands.Cog):
@@ -44,22 +44,10 @@ class OnMention(commands.Cog):
         if await is_user_blacklisted(self.bot, message.author.id) or await is_guild_blacklisted(self.bot, message.guild.id):
             return
 
-        intro_content = (
-            f"### How can I help you?\n"
-            f"I exclusively use **slash commands (`/`)** and do not support text prefixes.\n\n"
-            f"**__Getting Started__**\n"
-            f"To see everything I can do, just type `/` in the chat to explore\n my command list directly through Discord!"
-        )
-
         items = [
-            discord.ui.Section(
-                discord.ui.TextDisplay(content=intro_content),
-                accessory=discord.ui.Thumbnail(media=self.bot.user.display_avatar.url)
-            ),
-            discord.ui.Separator(visible=False),
-            discord.ui.ActionRow(
-                discord.ui.Button(label="Support Server", url=support_url),
-                discord.ui.Button(label="Invite Me", url=discord.utils.oauth_url(self.bot.user.id, permissions=discord.Permissions.all(), scopes=("bot", "applications.commands")))
+            discord.ui.TextDisplay(
+                content=f"{message.author.mention}**, Bot's prefix** is `/` or `@{self.bot.user.name}`\n"
+                        f"-# **<:string:1509936991763038409> Use `/help` or `@{self.bot.user.name} help` to get started with us!**"
             )
         ]
 
